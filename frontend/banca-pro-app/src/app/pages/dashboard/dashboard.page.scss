@@ -1,0 +1,376 @@
+:host {
+  --bg: #0a0c0f;
+  --surface: #12151a;
+  --surface2: #1a1e26;
+  --border: #232830;
+  --green: #00e676;
+  --red: #ff3d57;
+  --yellow: #ffd600;
+  --text: #e8eaf0;
+  --muted: #6b7280;
+  --accent: #4f8aff;
+}
+
+.dashboard-content {
+  --background: var(--bg);
+  color: var(--text);
+}
+
+ion-toolbar {
+  --background: #10141b;
+  --color: var(--yellow);
+}
+
+.header-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background:
+    radial-gradient(circle at top right, #ffd60022, transparent 35%),
+    linear-gradient(135deg, #151a23, #0d1117);
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 22px;
+  margin-bottom: 18px;
+  gap: 16px;
+}
+
+.header-box p,
+.header-box span,
+.info-card p,
+.dia-head p,
+.dia-grid label,
+.stat-card .label {
+  color: var(--muted);
+}
+
+.header-box p,
+.dia-head p,
+.dia-grid label,
+.stat-card .label,
+.sub-label {
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.header-box h1,
+.dia-head h2,
+.historico-card h2,
+.info-card h2 {
+  color: var(--yellow);
+}
+
+.header-box h1 {
+  margin: 5px 0;
+  font-size: 2rem;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.btn-refresh,
+.btn-danger,
+.btn-close-day,
+.btn-next-day {
+  border: none;
+  border-radius: 10px;
+  padding: 11px 18px;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.btn-refresh,
+.btn-close-day {
+  background: var(--yellow);
+  color: #000;
+}
+
+.btn-danger {
+  background: transparent;
+  color: var(--red);
+  border: 1px solid var(--red);
+}
+
+.btn-next-day {
+  background: var(--accent);
+  color: #fff;
+}
+
+.btn-close-day:disabled,
+.btn-next-day:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.stats-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.stat-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px 20px;
+  color: var(--text);
+}
+
+.stat-card .label {
+  font-size: 0.7rem;
+  margin-bottom: 8px;
+  font-weight: 800;
+}
+
+.stat-card .value {
+  color: var(--text);
+  font-family: monospace;
+  font-size: 1.45rem;
+  font-weight: 700;
+}
+
+.sub-label {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+.green-card {
+  border-color: var(--green);
+  background: #00e67618;
+}
+
+.green-card .label,
+.green-card .value {
+  color: var(--green) !important;
+}
+
+.red-card {
+  border-color: var(--red);
+  background: #ff3d5718;
+}
+
+.red-card .label,
+.red-card .value {
+  color: var(--red) !important;
+}
+
+.yellow-card {
+  border-color: var(--yellow);
+  background: #ffd60011;
+}
+
+.yellow-card .value {
+  color: var(--yellow) !important;
+}
+
+.patrimonio-card {
+  border-color: var(--accent);
+  background: #4f8aff14;
+}
+
+.patrimonio-card .value {
+  color: var(--accent) !important;
+}
+
+.dia-operacional-card,
+.historico-card,
+.info-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  color: var(--text);
+}
+
+.dia-operacional-card,
+.historico-card {
+  padding: 18px;
+  margin-bottom: 18px;
+}
+
+.dia-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.status-pill {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 4px 10px;
+  font-size: 0.72rem;
+  font-weight: 800;
+  border: 1px solid var(--border);
+  color: var(--muted);
+}
+
+.status-pill.aberto {
+  color: var(--green);
+  border-color: var(--green);
+  background: #00e67618;
+}
+
+.status-pill.fechado {
+  color: var(--red);
+  border-color: var(--red);
+  background: #ff3d5718;
+}
+
+.dia-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.dia-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 12px;
+}
+
+.dia-grid div {
+  background: #151922;
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px;
+  color: var(--text) !important;
+  transition:
+    border-color 0.2s,
+    transform 0.2s;
+}
+
+.dia-grid div:hover {
+  border-color: var(--yellow);
+  transform: translateY(-1px);
+}
+
+.dia-grid label {
+  display: block;
+  color: var(--muted) !important;
+  font-size: 0.65rem;
+  margin-bottom: 8px;
+}
+
+.dia-grid strong {
+  display: block;
+  color: var(--text) !important;
+  font-family: monospace;
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.green-text {
+  color: var(--green) !important;
+}
+
+.red-text {
+  color: var(--red) !important;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.info-card {
+  padding: 18px;
+}
+
+.info-card h2 {
+  margin: 0 0 10px;
+  font-size: 1rem;
+}
+
+.info-card p {
+  line-height: 1.45;
+  margin: 0 0 12px;
+}
+
+.info-card strong {
+  color: var(--text);
+}
+
+.mini-info {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid var(--border);
+}
+
+.mini-info span {
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.mini-info strong {
+  color: var(--yellow);
+  font-family: monospace;
+}
+
+.historico-table-wrap {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.historico-table-wrap table {
+  width: 100%;
+  min-width: 820px;
+  border-collapse: collapse;
+  color: var(--text) !important;
+}
+
+.historico-table-wrap th,
+.historico-table-wrap td {
+  text-align: left;
+  border-bottom: 1px solid var(--border);
+  padding: 10px;
+  font-size: 0.78rem;
+}
+
+.historico-table-wrap th {
+  color: #ffffff !important;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  letter-spacing: 1px;
+}
+
+.historico-table-wrap td {
+  color: var(--text) !important;
+  font-family: monospace;
+}
+
+@media (max-width: 700px) {
+  .header-box,
+  .dia-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-actions,
+  .btn-refresh,
+  .btn-danger,
+  .dia-actions,
+  .btn-close-day,
+  .btn-next-day {
+    width: 100%;
+  }
+
+  .info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .blue-card {
+    border-left: 4px solid #3b82f6;
+  }
+}

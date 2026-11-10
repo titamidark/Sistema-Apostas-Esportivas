@@ -1,0 +1,326 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+
+    <ion-title>Casas de Aposta</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="casas-content ion-padding">
+
+  <ion-card class="top-form-card">
+    <ion-card-content>
+
+      <div class="section-header">
+        <div>
+          <h2>{{ modoEdicao ? 'Editar Casa' : 'Nova Casa' }}</h2>
+          <p>Cadastro simples da casa de aposta</p>
+        </div>
+      </div>
+
+      <div class="form-grid">
+
+        <div class="form-item">
+          <label>Nome da Casa</label>
+
+          <ion-input
+            fill="outline"
+            placeholder="Ex: SuperBet"
+            [(ngModel)]="form.nome">
+          </ion-input>
+        </div>
+
+        <div class="form-item">
+  <label>Site da Casa</label>
+
+  <ion-input
+    fill="outline"
+    placeholder="Ex: https://www.bet365.com"
+    [(ngModel)]="form.linkSite">
+  </ion-input>
+</div>
+        <div class="form-item">
+          <label>Saldo Inicial</label>
+
+          <ion-input
+            type="text"
+            inputmode="numeric"
+            fill="outline"
+            [disabled]="modoEdicao"
+            [ngModel]="form.saldoInicialTexto"
+            (ionInput)="onSaldoInicialInput($event)">
+          </ion-input>
+
+          <small *ngIf="modoEdicao">
+            O saldo inicial não pode ser alterado após movimentações.
+          </small>
+        </div>
+
+        <div class="form-actions">
+          <ion-button expand="block" color="warning" (click)="salvarCasa()">
+            {{ modoEdicao ? 'Atualizar' : 'Salvar' }}
+          </ion-button>
+
+          <ion-button
+            *ngIf="modoEdicao"
+            expand="block"
+            fill="outline"
+            color="medium"
+            (click)="limparCasa()">
+            Cancelar
+          </ion-button>
+        </div>
+
+      </div>
+
+    </ion-card-content>
+  </ion-card>
+
+  <div class="casas-lista">
+
+    <ion-card class="top-form-card">
+  <ion-card-content>
+    <div class="form-item">
+      <label>Filtrar Casa</label>
+
+      <select class="custom-select" [(ngModel)]="filtroCasaId">
+        <option [ngValue]="null">Todas as casas</option>
+
+        <option
+          *ngFor="let casa of casas"
+          [ngValue]="casa.id">
+          {{ casa.nome }}
+        </option>
+      </select>
+    </div>
+  </ion-card-content>
+</ion-card>
+
+<ion-card class="casa-card" *ngFor="let casa of casasFiltradas()">      <ion-card-content>
+
+        <div class="casa-header">
+          <div>
+            <div class="casa-nome">{{ casa.nome }}</div>
+            <div class="casa-id">ID #{{ casa.id }}</div>
+          </div>
+
+          <ion-badge [color]="casa.ativa ? 'success' : 'medium'">
+            {{ casa.ativa ? 'ATIVA' : 'INATIVA' }}
+          </ion-badge>
+        </div>
+
+        <div class="casa-fields">
+
+          <div class="field-box">
+            <label>Saldo Inicial</label>
+            <strong>{{ formatarMoeda(casa.saldoInicial) }}</strong>
+          </div>
+
+          <div class="field-box">
+            <label>Depósitos</label>
+            <strong class="green">
+              {{ formatarMoeda(totalPorTipo(casa.id, 'DEPOSITO')) }}
+            </strong>
+          </div>
+
+          <div class="field-box">
+            <label>Saques / Retiradas</label>
+            <strong class="red">
+              {{ formatarMoeda(totalPorTipo(casa.id, 'SAQUE')) }}
+            </strong>
+          </div>
+
+
+          <div class="field-box">
+            <label>Apostado em Aberto</label>
+            <strong class="yellow">
+              {{ formatarMoeda(valorApostadoAberto(casa.id)) }}
+            </strong>
+          </div>
+
+<div class="field-box">
+  <label>Qtd. Apostas Abertas</label>
+  <strong class="yellow">
+    {{ quantidadeApostasAbertas(casa.id) }}
+  </strong>
+</div>
+
+
+
+          <div class="field-box">
+            <label>Valor Agendado</label>
+            <strong class="blue">
+              {{ formatarMoeda(valorAgendado(casa.id)) }}
+            </strong>
+          </div>
+
+          <div class="field-box">
+            <label>Resultado Atualização</label>
+            <strong
+              [class.green]="resultadoAtualizacaoSaldo(casa.id) >= 0"
+              [class.red]="resultadoAtualizacaoSaldo(casa.id) < 0">
+              {{ formatarMoeda(resultadoAtualizacaoSaldo(casa.id)) }}
+            </strong>
+          </div>
+
+          <div class="field-box">
+            <label>Lucro / Perda</label>
+            <strong
+              [class.green]="lucroPerdaCasa(casa.id) >= 0"
+              [class.red]="lucroPerdaCasa(casa.id) < 0">
+              {{ formatarMoeda(lucroPerdaCasa(casa.id)) }}
+            </strong>
+          </div>
+
+          <div class="field-box">
+            <label>Saldo Atual</label>
+            <strong class="saldo-atual">
+              {{ formatarMoeda(casa.saldoAtual) }}
+            </strong>
+          </div>
+
+        </div>
+
+        <div class="casa-help">
+          <strong>Saldo Atual</strong> mostra dinheiro parado na casa.
+          <strong>Apostado em Aberto</strong> mostra apostas já feitas.
+          <strong>Valor Agendado</strong> mostra quanto você precisa preparar/depositar.
+          <strong>Resultado Atualização</strong> calcula GREEN/RED pela diferença do saldo informado, descontando retiradas pessoais.
+        </div>
+
+        <div class="casa-footer">
+
+          <ion-button
+            size="small"
+            fill="outline"
+            color="success"
+            (click)="atualizarSaldoCasa(casa)">
+            Atualizar Saldo
+          </ion-button>
+
+          <ion-button
+            size="small"
+            fill="outline"
+            color="primary"
+            (click)="selecionarCasa(casa)">
+            Movimentar
+          </ion-button>
+
+          <ion-button
+            size="small"
+            fill="outline"
+            color="warning"
+            (click)="editarCasa(casa)">
+            Editar
+          </ion-button>
+
+<ion-button
+  size="small"
+  fill="outline"
+  color="primary"
+  *ngIf="casa.linkSite"
+  (click)="abrirSiteCasa(casa)">
+  Abrir Site
+</ion-button>
+
+          <ion-button
+            size="small"
+            fill="outline"
+            color="danger"
+            (click)="excluirCasa(casa)">
+            Excluir
+          </ion-button>
+
+        </div>
+
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+
+  <ion-card class="mov-card" *ngIf="casaSelecionada">
+    <ion-card-content>
+
+      <div class="section-header">
+        <div>
+          <h2>Movimentar {{ casaSelecionada.nome }}</h2>
+          <p>Depósitos, retiradas pessoais, resultados e ajustes</p>
+        </div>
+      </div>
+
+      <div class="form-grid mov-grid">
+
+        <div class="form-item">
+          <label>Tipo</label>
+
+          <select class="custom-select" [(ngModel)]="movimentoForm.tipo">
+            <option value="DEPOSITO">Depósito</option>
+            <option value="SAQUE">Retirada pessoal</option>
+            <option value="GREEN">Green</option>
+            <option value="RED">Red</option>
+            <option value="CASHOUT">Cashout</option>
+<option value="AJUSTE_ENTRADA">Ajuste Entrada</option>
+<option value="AJUSTE_SAIDA">Ajuste Saída</option>          </select>
+        </div>
+
+        <div class="form-item">
+          <label>Valor</label>
+
+          <ion-input
+            type="text"
+            inputmode="numeric"
+            fill="outline"
+            [ngModel]="movimentoForm.valorTexto"
+            (ionInput)="onMovimentoValorInput($event)">
+          </ion-input>
+        </div>
+
+        <div class="form-item">
+          <label>Descrição</label>
+
+          <ion-input
+            fill="outline"
+            [(ngModel)]="movimentoForm.descricao">
+          </ion-input>
+        </div>
+
+        <div class="form-actions">
+          <ion-button expand="block" color="success" (click)="salvarMovimentacao()">
+            Lançar
+          </ion-button>
+
+           <ion-button
+    expand="block"
+    fill="outline"
+    color="medium"
+    (click)="cancelarMovimentacao()">
+    Cancelar
+  </ion-button>
+
+        </div>
+
+
+
+      </div>
+
+      <div class="historico-box">
+
+        <div class="mov-item" *ngFor="let mov of movimentacoesDaCasaSelecionada()">
+
+          <div>
+            <div class="mov-tipo">{{ mov.tipo }}</div>
+            <div class="mov-desc">{{ mov.descricao || 'Sem descrição' }}</div>
+          </div>
+
+          <strong>{{ formatarMoeda(mov.valor) }}</strong>
+
+        </div>
+
+      </div>
+
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>

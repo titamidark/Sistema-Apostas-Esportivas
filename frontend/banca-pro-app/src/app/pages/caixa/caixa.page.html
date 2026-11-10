@@ -1,0 +1,206 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+
+    <ion-title>Caixa do Dia</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="caixa-content ion-padding">
+
+  <ion-card class="dia-card" *ngIf="diaAtual">
+    <ion-card-content>
+      <div class="dia-header">
+        <div>
+          <p>Dia Operacional</p>
+          <h2>{{ formatarData(diaAtual.data) }}</h2>
+        </div>
+
+        <span
+          class="status-pill"
+          [class.aberto]="diaAtual.status === 'ABERTO'"
+          [class.fechado]="diaAtual.status === 'FECHADO'">
+          {{ statusDiaLabel() }}
+        </span>
+      </div>
+
+      <div class="dia-grid">
+        <div>
+          <label>Saldo Inicial</label>
+          <strong>{{ formatarMoeda(diaAtual.saldoInicial) }}</strong>
+        </div>
+
+        <div>
+          <label>Saldo Atual / Final</label>
+          <strong>{{ formatarMoeda(diaAtual.saldoFinal) }}</strong>
+        </div>
+
+        <div>
+          <label>Apostas</label>
+          <strong>{{ diaAtual.quantidadeApostas || 0 }}</strong>
+        </div>
+
+        <div>
+          <label>Pendentes</label>
+          <strong>{{ diaAtual.quantidadePendentes || 0 }}</strong>
+        </div>
+      </div>
+
+      <div class="dia-alerta" *ngIf="diaFechado()">
+        Este dia está fechado. Para novos lançamentos, inicie o próximo dia pelo Dashboard.
+      </div>
+    </ion-card-content>
+  </ion-card>
+
+  <div class="stats-row">
+
+    <div class="stat-card yellow-card">
+      <div class="label">Saldo Inicial do Dia</div>
+      <div class="value">{{ formatarMoeda(resumo.saldoInicial) }}</div>
+    </div>
+
+    <div class="stat-card green-card">
+      <div class="label">Entradas Manuais</div>
+      <div class="value">{{ formatarMoeda(resumo.adicionado) }}</div>
+    </div>
+
+    <div class="stat-card red-card">
+      <div class="label">Saídas Manuais</div>
+      <div class="value">{{ formatarMoeda(resumo.saidas) }}</div>
+    </div>
+
+    <div class="stat-card red-card">
+      <div class="label">Apostado no Dia</div>
+      <div class="value">{{ formatarMoeda(resumo.apostado) }}</div>
+    </div>
+
+    <div class="stat-card red-card">
+      <div class="label">Depósito nas Casas</div>
+      <div class="value">{{ formatarMoeda(resumo.transferidoParaCasas) }}</div>
+    </div>
+
+    <div class="stat-card green-card">
+      <div class="label">Saque das Casas</div>
+      <div class="value">{{ formatarMoeda(resumo.saqueDasCasas) }}</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="label">Ajustes</div>
+      <div class="value">{{ formatarMoeda(resumo.ajustes) }}</div>
+    </div>
+
+    <div class="stat-card yellow-card">
+      <div class="label">Caixa Atual</div>
+      <div class="value">{{ formatarMoeda(resumo.saldoAtual) }}</div>
+    </div>
+
+  </div>
+
+  <ion-card class="caixa-card">
+    <ion-card-content>
+
+      <h2>Novo Lançamento do Dia</h2>
+
+      <div class="form-grid">
+
+        <div class="form-item">
+          <label>Tipo</label>
+
+          <select class="custom-select" [(ngModel)]="form.tipo" [disabled]="diaFechado()">
+
+            <option
+              value="SALDO_INICIAL_DIA"
+              [disabled]="saldoInicialDefinido()">
+              Saldo Inicial do Dia
+            </option>
+
+            <option value="ENTRADA_MANUAL">
+              Entrada Manual
+            </option>
+
+            <option value="SAIDA_MANUAL">
+              Saída Manual
+            </option>
+
+            <option value="APOSTA">
+              Aposta
+            </option>
+
+            <option value="DEPOSITO_CASA">
+              Depósito na Casa
+            </option>
+
+            <option value="SAQUE_CASA">
+              Saque da Casa
+            </option>
+
+            <option value="AJUSTE">
+              Ajuste
+            </option>
+
+          </select>
+        </div>
+
+        <div class="form-item">
+          <label>Valor</label>
+
+          <ion-input
+            type="text"
+            inputmode="numeric"
+            fill="outline"
+            [ngModel]="form.valorTexto"
+            (ionInput)="onValorInput($event)"
+            [disabled]="diaFechado()">
+          </ion-input>
+        </div>
+
+        <div class="form-item">
+          <label>Descrição</label>
+
+          <ion-input
+            fill="outline"
+            placeholder="Ex: abertura do caixa"
+            [(ngModel)]="form.descricao"
+            [disabled]="diaFechado()">
+          </ion-input>
+        </div>
+
+        <div class="form-actions">
+          <ion-button
+            expand="block"
+            color="warning"
+            (click)="salvarMovimentacao()"
+            [disabled]="diaFechado()">
+            Lançar
+          </ion-button>
+        </div>
+
+      </div>
+
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card class="caixa-card">
+    <ion-card-content>
+
+      <h2>Histórico do Dia</h2>
+
+      <div class="mov-item" *ngFor="let mov of movimentacoes">
+
+        <div>
+          <div class="mov-tipo">{{ labelTipo(mov.tipo) }}</div>
+          <div class="mov-desc">{{ mov.descricao || 'Sem descrição' }}</div>
+        </div>
+
+        <strong [class]="classeValor(mov.tipo)">
+          {{ formatarMoeda(mov.valor) }}
+        </strong>
+
+      </div>
+
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>

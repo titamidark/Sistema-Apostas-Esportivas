@@ -1,0 +1,207 @@
+:host {
+  --bg: #0a0c0f;
+  --surface: #12151a;
+  --surface2: #1a1e26;
+  --border: #232830;
+  --green: #00e676;
+  --red: #ff3d57;
+  --yellow: #ffd600;
+  --text: #e8eaf0;
+  --muted: #6b7280;
+  --accent: #4f8aff;
+}
+
+.casas-content {
+  --background: var(--bg);
+  color: var(--text);
+}
+
+ion-toolbar {
+  --background: #10141b;
+  --color: var(--yellow);
+}
+
+.top-form-card,
+.casa-card,
+.mov-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  color: var(--text);
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 18px;
+}
+
+.section-header h2 {
+  margin: 0;
+  color: var(--yellow);
+  font-size: 1.2rem;
+}
+
+.section-header p {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.8rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 220px 180px;
+  gap: 14px;
+  align-items: end;
+}
+
+.mov-grid {
+  grid-template-columns: 220px 180px 1fr 180px;
+}
+
+.form-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.form-item label {
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.form-item small {
+  color: var(--red);
+  font-size: 0.72rem;
+}
+
+.casas-lista {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(390px, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.casa-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.casa-nome {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.casa-id {
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.casa-fields {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 9px;
+}
+
+.field-box {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 11px;
+}
+
+.field-box label {
+  display: block;
+  color: var(--muted);
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  margin-bottom: 6px;
+}
+
+.field-box strong {
+  font-size: 0.86rem;
+  font-family: monospace;
+}
+
+.green {
+  color: var(--green);
+}
+
+.red {
+  color: var(--red);
+}
+
+.saldo-atual {
+  color: var(--yellow);
+  font-size: 0.95rem !important;
+}
+
+.casa-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+}
+
+.custom-select {
+  width: 100%;
+  height: 56px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: white;
+  padding: 0 12px;
+}
+
+.custom-select option {
+  background: var(--surface2);
+}
+
+.historico-box {
+  margin-top: 20px;
+}
+
+.mov-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.mov-tipo {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.mov-desc {
+  color: var(--muted);
+  font-size: 0.75rem;
+}
+
+@media (max-width: 900px) {
+  .form-grid,
+  .mov-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .casa-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .casas-lista {
+    grid-template-columns: 1fr;
+  }
+
+  .blue {
+    color: var(--accent) !important;
+  }
+}

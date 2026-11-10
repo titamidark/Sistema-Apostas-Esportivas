@@ -1,0 +1,259 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>🚀 Alavancagens</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="alavancagens-content ion-padding">
+
+  <ion-card class="alav-card">
+    <ion-card-content>
+
+      <div class="section-header">
+        <div>
+          <h2>➕ Novo Projeto</h2>
+          <p>
+            Crie projetos como Robô Premium, Lay Goleada, Lay 0x2 ou qualquer método.
+          </p>
+        </div>
+      </div>
+
+      <div class="alav-form-grid">
+
+        <div class="form-item">
+          <label>Nome</label>
+          <ion-input
+            fill="outline"
+            placeholder="Ex: Robô Premium"
+            [(ngModel)]="form.nome">
+          </ion-input>
+        </div>
+
+        <div class="form-item">
+          <label>Descrição</label>
+          <ion-input
+            fill="outline"
+            placeholder="Opcional"
+            [(ngModel)]="form.descricao">
+          </ion-input>
+        </div>
+
+        <div class="form-item">
+          <label>Valor Inicial</label>
+          <ion-input
+            type="text"
+            inputmode="numeric"
+            fill="outline"
+            [(ngModel)]="form.valorInicialTexto"
+            (ionInput)="onValorInicialInput($event)">
+          </ion-input>
+        </div>
+
+        <div class="form-item">
+          <label>Rodadas por ciclo</label>
+          <ion-input
+            type="number"
+            fill="outline"
+            min="1"
+            [(ngModel)]="form.rodadasPorCiclo">
+          </ion-input>
+        </div>
+
+        <div class="form-item">
+          <label>% Reinvestimento</label>
+          <ion-input
+            type="number"
+            fill="outline"
+            min="0"
+            max="100"
+            [(ngModel)]="form.percentualReinvestimento">
+          </ion-input>
+        </div>
+
+        <div class="form-actions">
+          <ion-button
+            expand="block"
+            color="warning"
+            (click)="criar()">
+            Criar
+          </ion-button>
+        </div>
+
+      </div>
+
+    </ion-card-content>
+  </ion-card>
+
+  <div class="alav-list">
+
+    <ion-card
+      class="alav-item"
+      *ngFor="let projeto of projetos">
+
+      <ion-card-content>
+
+        <div class="alav-head">
+          <div>
+            <div class="alav-title">
+              {{ projeto.nome }}
+            </div>
+
+            <div class="alav-desc">
+              {{ projeto.descricao || 'Sem descrição' }}
+            </div>
+          </div>
+
+          <div class="status-pill">
+            {{ projeto.status }}
+          </div>
+        </div>
+
+        <div class="alav-stats">
+
+          <div class="alav-stat">
+            <div class="label">Valor Inicial</div>
+            <div class="value">
+              {{ moeda(projeto.valorInicial) }}
+            </div>
+          </div>
+
+          <div class="alav-stat destaque">
+            <div class="label">Próxima Aposta</div>
+            <div class="value">
+              {{ moeda(projeto.proximaAposta) }}
+            </div>
+          </div>
+
+          <div class="alav-stat">
+            <div class="label">Stake Atual</div>
+            <div class="value">
+              {{ moeda(projeto.stakeAtual) }}
+            </div>
+          </div>
+
+          <div class="alav-stat">
+            <div class="label">Lucro Ciclo Atual</div>
+            <div class="value green">
+              {{ moeda(projeto.lucroCicloAtual) }}
+            </div>
+          </div>
+
+          <div class="alav-stat">
+            <div class="label">Rodada Atual</div>
+            <div class="value">
+              {{ projeto.rodadaAtual }} / {{ projeto.rodadasPorCiclo }}
+            </div>
+          </div>
+
+          <div class="alav-stat">
+            <div class="label">% Reinvestimento</div>
+            <div class="value">
+              {{ projeto.percentualReinvestimento }}%
+            </div>
+          </div>
+
+          <div class="alav-stat">
+            <div class="label">Ciclo Atual</div>
+            <div class="value">
+              #{{ projeto.cicloAtual }}
+            </div>
+          </div>
+
+          <div class="alav-stat">
+            <div class="label">Ciclos Green</div>
+            <div class="value green">
+              {{ projeto.ciclosGreen }}
+            </div>
+          </div>
+
+          <div class="alav-stat">
+            <div class="label">Ciclos Red</div>
+            <div class="value red">
+              {{ projeto.ciclosRed }}
+            </div>
+          </div>
+
+          <div class="alav-stat">
+            <div class="label">Lucro Retirado</div>
+            <div class="value green">
+              {{ moeda(projeto.lucroRetiradoAcumulado) }}
+            </div>
+          </div>
+
+          <div class="alav-stat">
+            <div class="label">Red Acumulado</div>
+            <div class="value red">
+              {{ moeda(projeto.redAcumulado) }}
+            </div>
+          </div>
+
+          <div class="alav-stat">
+            <div class="label">Resultado Líquido</div>
+            <div
+              class="value"
+              [class.green]="projeto.resultadoLiquido >= 0"
+              [class.red]="projeto.resultadoLiquido < 0">
+              {{ moeda(projeto.resultadoLiquido) }}
+            </div>
+          </div>
+
+          <div class="alav-stat">
+            <div class="label">Maior Sequência Green</div>
+            <div class="value">
+              {{ projeto.maiorSequenciaGreen }}
+            </div>
+          </div>
+
+          <div class="alav-stat">
+            <div class="label">Maior Stake</div>
+            <div class="value">
+              {{ moeda(projeto.maiorStake) }}
+            </div>
+          </div>
+
+        </div>
+
+        <div
+          class="ciclos-box"
+          *ngIf="ciclosPorProjeto[projeto.id]?.length">
+
+          <h3>Histórico de Ciclos</h3>
+
+          <div class="ciclo-row header">
+            <span>Ciclo</span>
+            <span>Inicial</span>
+            <span>Stake Inicial</span>
+            <span>Stake Final</span>
+            <span>Lucro</span>
+            <span>Rodadas</span>
+            <span>Status</span>
+          </div>
+
+          <div
+            class="ciclo-row"
+            *ngFor="let ciclo of ciclosPorProjeto[projeto.id]">
+
+            <span>#{{ ciclo.numero }}</span>
+            <span>{{ moeda(ciclo.valorInicial) }}</span>
+            <span>{{ moeda(ciclo.stakeInicial) }}</span>
+            <span>{{ moeda(ciclo.stakeFinal) }}</span>
+            <span>{{ moeda(ciclo.lucroCiclo) }}</span>
+            <span>{{ ciclo.rodadasRealizadas }} / {{ ciclo.rodadasPlanejadas }}</span>
+
+            <span
+              [class.green]="ciclo.status === 'GREEN'"
+              [class.red]="ciclo.status === 'RED'">
+              {{ ciclo.status }}
+            </span>
+
+          </div>
+
+        </div>
+
+      </ion-card-content>
+
+    </ion-card>
+
+  </div>
+
+</ion-content>

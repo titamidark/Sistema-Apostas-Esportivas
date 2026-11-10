@@ -1,0 +1,49 @@
+<ion-app>
+
+  <ion-split-pane contentId="main-content">
+
+    <ion-menu
+      contentId="main-content"
+      type="overlay"
+      side="start">
+
+      <ion-content class="menu-content">
+
+        <div class="brand">
+          <div class="brand-icon">BP</div>
+
+          <div class="brand-text">
+            <h1>Banca Pro</h1>
+            <span>Trading & Gestão</span>
+          </div>
+        </div>
+
+        <nav class="menu-list">
+
+          <a
+            *ngFor="let item of menuItems"
+            [routerLink]="item.url"
+            routerLinkActive="active-link"
+            class="menu-link">
+
+            <ion-icon [name]="item.icon"></ion-icon>
+
+            <span>
+              {{ item.label }}
+            </span>
+
+          </a>
+
+        </nav>
+
+      </ion-content>
+
+    </ion-menu>
+
+    <div class="page-area" id="main-content">
+      <ion-router-outlet></ion-router-outlet>
+    </div>
+
+  </ion-split-pane>
+
+</ion-app>

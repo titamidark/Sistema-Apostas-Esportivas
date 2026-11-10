@@ -1,0 +1,274 @@
+<ion-header>
+  <ion-toolbar>
+
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+
+    <ion-title>Dashboard</ion-title>
+
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="dashboard-content ion-padding">
+
+  <div class="header-box">
+    <div>
+      <p>Banca Pro</p>
+      <h1>Resumo Geral</h1>
+      <span>Caixa do dia + saldos das casas + apostas agendadas</span>
+    </div>
+
+    <div class="header-actions">
+      <button class="btn-refresh" (click)="carregarResumo()">
+        Atualizar
+      </button>
+
+      <button class="btn-danger" (click)="zerarTudo()">
+        Zerar Tudo
+      </button>
+    </div>
+  </div>
+
+  <div class="stats-row">
+
+    <div class="stat-card yellow-card">
+      <div class="label">Caixa Atual do Dia</div>
+      <div class="value">
+        {{ formatarMoeda(resumo.caixaAtual) }}
+      </div>
+    </div>
+
+    <div class="stat-card green-card">
+      <div class="label">Saldo Total nas Casas</div>
+      <div class="value">
+        {{ formatarMoeda(resumo.saldoTotalCasas) }}
+      </div>
+    </div>
+
+    <div class="stat-card patrimonio-card">
+      <div class="label">Patrimônio Total</div>
+      <div class="value">
+        {{ formatarMoeda(resumo.patrimonioTotal) }}
+      </div>
+    </div>
+
+    <div class="stat-card red-card">
+      <div class="label">Total Apostado</div>
+      <div class="value">
+        {{ formatarMoeda(resumo.totalApostado) }}
+      </div>
+    </div>
+
+    <div
+      class="stat-card"
+      [class.green-card]="resumo.lucroPrejuizo >= 0"
+      [class.red-card]="resumo.lucroPrejuizo < 0">
+
+      <div class="label">
+        {{ resumo.lucroPrejuizo >= 0 ? 'GREEN' : 'RED' }}
+      </div>
+
+      <div class="value">
+        {{ formatarMoeda(resumo.lucroPrejuizo) }}
+      </div>
+
+      <div class="sub-label">
+        Lucro / Prejuízo
+      </div>
+    </div>
+
+<div class="stat-card blue-card">
+  <div class="label">Apostas em Aberto</div>
+
+  <div class="value">
+    {{ resumo.apostasEmAberto || 0 }}
+  </div>
+
+  <div class="sub-label">
+    Feitas + Em Andamento
+  </div>
+</div>
+
+<div class="stat-card blue-card">
+  <div class="label">Recuperação Potencial</div>
+
+  <div class="value">
+    {{ formatarMoeda(resumo.recuperacaoPotencial) }}
+  </div>
+
+  <div class="sub-label">
+    Lucro possível das abertas
+  </div>
+</div>
+
+<div
+  class="stat-card"
+  [class.green-card]="resumo.projecaoDia >= 0"
+  [class.red-card]="resumo.projecaoDia < 0">
+
+  <div class="label">Projeção do Dia</div>
+
+  <div class="value">
+    {{ formatarMoeda(resumo.projecaoDia) }}
+  </div>
+
+  <div class="sub-label">
+    Atual + Potencial
+  </div>
+</div>
+
+  </div>
+
+  <div class="dia-operacional-card" *ngIf="diaAtual">
+    <div class="dia-head">
+      <div>
+        <p>Dia Operacional</p>
+        <h2>{{ formatarData(diaAtual.data) }}</h2>
+
+        <span
+          class="status-pill"
+          [class.aberto]="diaAtual.status === 'ABERTO'"
+          [class.fechado]="diaAtual.status === 'FECHADO'">
+          {{ statusDiaLabel(diaAtual.status) }}
+        </span>
+      </div>
+
+      <div class="dia-actions">
+        <button
+          class="btn-close-day"
+          [disabled]="!podeFecharDia()"
+          (click)="fecharDia()">
+          Fechar Dia
+        </button>
+
+        <button
+          class="btn-next-day"
+          [disabled]="!podeIniciarProximoDia()"
+          (click)="iniciarProximoDia()">
+          Iniciar Próximo Dia
+        </button>
+      </div>
+    </div>
+
+    <div class="dia-grid">
+
+      <div>
+        <label>Saldo Inicial</label>
+        <strong>{{ formatarMoeda(diaAtual.saldoInicial) }}</strong>
+      </div>
+
+      <div>
+        <label>Saldo Final / Atual</label>
+        <strong>{{ formatarMoeda(diaAtual.saldoFinal) }}</strong>
+      </div>
+
+      <div>
+        <label>Green Dia</label>
+        <strong class="green-text">
+          {{ formatarMoeda(diaAtual.totalGreen) }}
+        </strong>
+      </div>
+
+      <div>
+        <label>Red Dia</label>
+        <strong class="red-text">
+          {{ formatarMoeda(diaAtual.totalRed) }}
+        </strong>
+      </div>
+
+      <div>
+        <label>Cashout Dia</label>
+        <strong>{{ formatarMoeda(diaAtual.totalCashout) }}</strong>
+      </div>
+
+      <div>
+        <label>ROI</label>
+        <strong>{{ diaAtual.roi || 0 }}%</strong>
+      </div>
+
+      <div>
+        <label>Apostas</label>
+        <strong>{{ diaAtual.quantidadeApostas || 0 }}</strong>
+      </div>
+
+      <div>
+        <label>Pendentes</label>
+        <strong>{{ diaAtual.quantidadePendentes || 0 }}</strong>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="info-grid">
+
+    <div class="info-card">
+      <h2>Apostas agendadas</h2>
+
+      <p>
+        Jogos agendados ainda não movimentam o caixa.
+      </p>
+
+      <div class="mini-info">
+        <span>Quantidade</span>
+        <strong>{{ resumo.quantidadeJogosAgendados }}</strong>
+      </div>
+
+      <div class="mini-info">
+        <span>Valor previsto</span>
+        <strong>{{ formatarMoeda(resumo.valorTotalJogosAgendados) }}</strong>
+      </div>
+    </div>
+
+    <div class="info-card">
+      <h2>Resumo de patrimônio</h2>
+
+      <p>
+        Patrimônio Total =
+        <strong>Caixa Atual do Dia</strong>
+        +
+        <strong>Saldo Total nas Casas</strong>.
+      </p>
+    </div>
+
+  </div>
+
+  <div class="historico-card" *ngIf="historicoDias.length > 0">
+    <h2>Histórico Diário</h2>
+
+    <div class="historico-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Data</th>
+            <th>Status</th>
+            <th>Inicial</th>
+            <th>Final</th>
+            <th>Green</th>
+            <th>Red</th>
+            <th>Lucro/Prejuízo</th>
+            <th>ROI</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let dia of historicoDias">
+            <td>{{ formatarData(dia.data) }}</td>
+            <td>{{ statusDiaLabel(dia.status) }}</td>
+            <td>{{ formatarMoeda(dia.saldoInicial) }}</td>
+            <td>{{ formatarMoeda(dia.saldoFinal) }}</td>
+            <td class="green-text">{{ formatarMoeda(dia.totalGreen) }}</td>
+            <td class="red-text">{{ formatarMoeda(dia.totalRed) }}</td>
+            <td
+              [class.green-text]="dia.lucroPrejuizo >= 0"
+              [class.red-text]="dia.lucroPrejuizo < 0">
+              {{ formatarMoeda(dia.lucroPrejuizo) }}
+            </td>
+            <td>{{ dia.roi || 0 }}%</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</ion-content>

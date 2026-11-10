@@ -1,0 +1,600 @@
+```html
+<ion-header>
+  <ion-toolbar>
+    <ion-title>🏦 Cofrinhos / Metas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="cofrinhos-content ion-padding">
+
+  <!-- RESUMO GERAL -->
+  <ion-card class="cofrinho-resumo-card">
+    <ion-card-content>
+
+      <div class="resumo-header">
+
+        <div>
+          <span class="resumo-label">
+            Depósito diário previsto
+          </span>
+
+          <strong class="resumo-valor">
+            {{ moeda(depositoDiarioPrevisto()) }}
+          </strong>
+        </div>
+
+        <div>
+          <span class="resumo-label">
+            Saldo reservado
+          </span>
+
+          <strong class="resumo-valor banco">
+            {{ moeda(saldoReservado()) }}
+          </strong>
+        </div>
+
+        <div>
+          <span class="resumo-label">
+            Cofrinhos ativos
+          </span>
+
+          <strong class="resumo-valor menor">
+            {{ cofrinhosAbertos().length }}
+          </strong>
+        </div>
+
+      </div>
+
+      <div class="resumo-status-grid">
+
+        <div
+          class="resumo-status-item"
+          *ngFor="let cofrinho of cofrinhosAbertos()">
+
+          <div class="resumo-status-nome">
+            {{ cofrinho.nome }}
+          </div>
+
+          <div class="resumo-status-info">
+            {{ moeda(valorDiarioCofrinho(cofrinho)) }} / dia
+          </div>
+
+          <div
+            class="resumo-status-pill"
+            [ngClass]="classeStatusCofrinho(cofrinho)">
+
+            {{ statusCofrinho(cofrinho) }}
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </ion-card-content>
+  </ion-card>
+
+  <!-- NOVO COFRINHO -->
+  <ion-card class="cofrinho-card">
+    <ion-card-content>
+
+      <div class="section-header">
+        <div>
+          <h2>➕ Novo Cofrinho</h2>
+
+          <p>
+            Crie uma meta fixa ou um cofrinho variável para cartão e fatura.
+            Você também pode informar quanto já possui reservado.
+          </p>
+        </div>
+      </div>
+
+      <div class="cofrinho-grid-form">
+
+        <div class="form-item">
+          <label>Tipo</label>
+
+          <select
+            class="custom-select"
+            [(ngModel)]="form.tipo">
+
+            <option value="META_FIXA">
+              Meta fixa
+            </option>
+
+            <option value="VALOR_VARIAVEL">
+              Valor variável
+            </option>
+
+          </select>
+        </div>
+
+        <div class="form-item">
+          <label>Nome do Cofrinho</label>
+
+          <ion-input
+            fill="outline"
+            placeholder="Ex: Reserva para viagem"
+            [(ngModel)]="form.nome">
+          </ion-input>
+        </div>
+
+        <div class="form-item">
+          <label>Descrição / Motivo</label>
+
+          <ion-input
+            fill="outline"
+            placeholder="Ex: Juntar dinheiro para a viagem"
+            [(ngModel)]="form.descricao">
+          </ion-input>
+        </div>
+
+        <div class="form-item">
+          <label>
+            {{
+              form.tipo === 'VALOR_VARIAVEL'
+                ? 'Valor atual da fatura'
+                : 'Valor total da meta'
+            }}
+          </label>
+
+          <ion-input
+            type="text"
+            inputmode="numeric"
+            fill="outline"
+            placeholder="Ex: R$ 1.000,00"
+            [(ngModel)]="form.valorTotalTexto"
+            (ionInput)="onValorTotalInput($event)">
+          </ion-input>
+        </div>
+
+        <div class="form-item">
+          <label>Valor já reservado</label>
+
+          <ion-input
+            type="text"
+            inputmode="numeric"
+            fill="outline"
+            placeholder="Ex: R$ 400,00"
+            [(ngModel)]="form.valorReservadoInicialTexto"
+            (ionInput)="onValorReservadoInicialInput($event)">
+          </ion-input>
+        </div>
+
+        <div class="form-item">
+          <label>Data de início</label>
+
+          <ion-input
+            type="date"
+            fill="outline"
+            [(ngModel)]="form.dataInicio">
+          </ion-input>
+        </div>
+
+        <div class="form-item">
+          <label>Dias</label>
+
+          <ion-input
+            type="number"
+            fill="outline"
+            min="1"
+            [(ngModel)]="form.dias">
+          </ion-input>
+        </div>
+
+        <div class="form-actions">
+
+          <ion-button
+            expand="block"
+            color="warning"
+            (click)="criar()">
+
+            Criar Cofrinho
+
+          </ion-button>
+
+        </div>
+
+      </div>
+
+    </ion-card-content>
+  </ion-card>
+
+  <!-- COFRINHOS ABERTOS -->
+  <div class="cofrinho-list">
+
+    <ion-card
+      class="cofrinho-item"
+      *ngFor="let cofrinho of cofrinhosAbertos()">
+
+      <ion-card-content>
+
+        <div class="cofrinho-head">
+
+          <div>
+
+            <div class="cofrinho-title">
+              {{ cofrinho.nome }}
+
+              <span
+                *ngIf="cofrinho.tipo === 'VALOR_VARIAVEL'"
+                class="vence-logo">
+
+                💳 Variável
+
+              </span>
+
+              <span
+                *ngIf="
+                  !cofrinhoFechado(cofrinho) &&
+                  diasParaVencer(cofrinho) < 0
+                "
+                class="vence-logo vencido">
+
+                🔴 Vencido há
+                {{ diasParaVencer(cofrinho) * -1 }}
+                dia(s)
+
+              </span>
+
+              <span
+                *ngIf="
+                  !cofrinhoFechado(cofrinho) &&
+                  diasParaVencer(cofrinho) === 0
+                "
+                class="vence-logo">
+
+                ⚠️ Vence hoje
+
+              </span>
+
+              <span
+                *ngIf="
+                  !cofrinhoFechado(cofrinho) &&
+                  diasParaVencer(cofrinho) > 0 &&
+                  diasParaVencer(cofrinho) <= 7
+                "
+                class="vence-logo">
+
+                ⚠️ Vence em
+                {{ diasParaVencer(cofrinho) }}
+                dia(s)
+
+              </span>
+            </div>
+
+            <div class="cofrinho-desc">
+              {{ cofrinho.descricao || 'Sem descrição' }}
+            </div>
+
+          </div>
+
+          <div class="cofrinho-item-actions">
+
+            <ion-button
+              size="small"
+              fill="outline"
+              color="danger"
+              (click)="excluir(cofrinho.id)">
+
+              Excluir
+
+            </ion-button>
+
+            <ion-button
+              size="small"
+              fill="outline"
+              color="warning"
+              (click)="alterarDiasRestantes(cofrinho)">
+
+              Alterar dias
+
+            </ion-button>
+
+            <ion-button
+              size="small"
+              fill="outline"
+              color="success"
+              *ngIf="cofrinho.tipo === 'VALOR_VARIAVEL'"
+              (click)="adicionarGasto(cofrinho)">
+
+              + Gasto
+
+            </ion-button>
+
+          </div>
+
+        </div>
+
+        <ng-container *ngIf="resumo(cofrinho.id) as r">
+
+          <div class="cofrinho-stats">
+
+            <div class="cofrinho-stat">
+              <div class="label">
+                {{
+                  cofrinho.tipo === 'VALOR_VARIAVEL'
+                    ? 'Total da fatura'
+                    : 'Meta'
+                }}
+              </div>
+
+              <div class="value">
+                {{ moeda(cofrinho.valorTotal) }}
+              </div>
+            </div>
+
+            <div class="cofrinho-stat">
+              <div class="label">
+                Reserva inicial
+              </div>
+
+              <div class="value">
+                {{
+                  moeda(
+                    cofrinho.valorReservadoInicial || 0
+                  )
+                }}
+              </div>
+            </div>
+
+            <div class="cofrinho-stat">
+              <div class="label">
+                Depositado no período
+              </div>
+
+              <div class="value green">
+                {{ moeda(r.depositadoPeriodo) }}
+              </div>
+            </div>
+
+            <div class="cofrinho-stat">
+              <div class="label">
+                Total reservado
+              </div>
+
+              <div class="value green">
+                {{ moeda(r.depositado) }}
+              </div>
+            </div>
+
+            <div class="cofrinho-stat">
+              <div class="label">
+                Falta
+              </div>
+
+              <div
+                class="value"
+                [class.red]="r.falta > 0"
+                [class.green]="r.falta <= 0">
+
+                {{ moeda(r.falta) }}
+
+              </div>
+            </div>
+
+            <div class="cofrinho-stat">
+              <div class="label">
+                Data Início
+              </div>
+
+              <div class="value">
+                {{ formatarData(cofrinho.dataInicio) }}
+              </div>
+            </div>
+
+            <div class="cofrinho-stat">
+              <div class="label">
+                Data Final
+              </div>
+
+              <div class="value">
+                {{ formatarData(cofrinho.dataFinal) }}
+              </div>
+            </div>
+
+            <div class="cofrinho-stat">
+              <div class="label">
+                Dias restantes
+              </div>
+
+              <div class="value">
+                {{ r.pendentes }}
+              </div>
+            </div>
+
+            <div class="cofrinho-stat">
+              <div class="label">
+                Valor diário atual
+              </div>
+
+              <div class="value">
+                {{ moeda(r.valorDiarioAtual) }}
+              </div>
+            </div>
+
+            <div class="cofrinho-stat">
+              <div class="label">
+                Progresso
+              </div>
+
+              <div class="value">
+                {{ r.progresso | number:'1.0-2' }}%
+              </div>
+            </div>
+
+            <div class="cofrinho-stat">
+              <div class="label">
+                Status dos dias
+              </div>
+
+              <div class="value">
+                🟢 {{ r.verdes }}
+                · 🔴 {{ r.vermelhos }}
+                · ⏳ {{ r.pendentes }}
+              </div>
+            </div>
+
+          </div>
+
+          <div class="cofrinho-progress">
+
+            <div
+              class="cofrinho-progress-fill"
+              [style.width.%]="r.progresso">
+            </div>
+
+          </div>
+
+        </ng-container>
+
+        <!-- DIAS / PARCELAS -->
+        <div class="cofrinho-dias">
+
+          <div
+            class="cofrinho-dia"
+            *ngFor="
+              let dia of diasPorCofrinho[cofrinho.id] || []
+            "
+            [class.green]="dia.status === 'GREEN'"
+            [class.red]="dia.status === 'RED'"
+            [class.pendente]="dia.status === 'PENDENTE'">
+
+            <div class="cofrinho-dia-top">
+
+              <span>
+                Dia {{ dia.dia }}
+              </span>
+
+              <span *ngIf="dia.status === 'GREEN'">
+                🟢
+              </span>
+
+              <span *ngIf="dia.status === 'RED'">
+                🔴
+              </span>
+
+              <span *ngIf="dia.status === 'PENDENTE'">
+                ⏳
+              </span>
+
+            </div>
+
+            <div class="cofrinho-dia-top">
+              <span>
+                {{ dia.data | date:'dd/MM' }}
+              </span>
+            </div>
+
+            <div class="cofrinho-dia-valor">
+
+              <span *ngIf="dia.status === 'GREEN'">
+                {{ moeda(dia.valorDepositado) }}
+              </span>
+
+              <span *ngIf="dia.status !== 'GREEN'">
+                {{ moeda(dia.valorPrevisto) }}
+              </span>
+
+            </div>
+
+            <div class="cofrinho-dia-actions">
+
+              <button
+                class="g"
+                type="button"
+                (click)="marcarGreen(cofrinho, dia)">
+
+                G
+
+              </button>
+
+              <button
+                class="r"
+                type="button"
+                (click)="marcarRed(cofrinho, dia)">
+
+                R
+
+              </button>
+
+              <button
+                type="button"
+                (click)="voltarPendente(cofrinho, dia)">
+
+                ↺
+
+              </button>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </ion-card-content>
+    </ion-card>
+
+  </div>
+
+  <!-- COFRINHOS FECHADOS -->
+  <ion-card
+    class="cofrinho-card"
+    *ngIf="cofrinhosFechados().length > 0">
+
+    <ion-card-content>
+
+      <div class="section-header">
+        <div>
+          <h2>✅ Cofrinhos Fechados</h2>
+
+          <p>
+            Cofrinhos concluídos após atingir a meta e finalizar todos os dias.
+          </p>
+        </div>
+      </div>
+
+      <div
+        class="cofrinho-fechado-item"
+        *ngFor="let cofrinho of cofrinhosFechados()">
+
+        <div>
+          <strong>
+            {{ cofrinho.nome }}
+          </strong>
+
+          <div class="cofrinho-desc">
+            {{ cofrinho.descricao || 'Sem descrição' }}
+          </div>
+        </div>
+
+        <span>
+          Meta:
+          {{ moeda(cofrinho.valorTotal) }}
+        </span>
+
+        <span>
+          Reserva inicial:
+          {{
+            moeda(
+              cofrinho.valorReservadoInicial || 0
+            )
+          }}
+        </span>
+
+        <span class="green">
+          ✅ Meta concluída
+        </span>
+
+        <span>
+          Final:
+          {{ formatarData(cofrinho.dataFinal) }}
+        </span>
+
+      </div>
+
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>
+```

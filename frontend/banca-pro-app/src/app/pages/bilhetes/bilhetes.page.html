@@ -1,0 +1,495 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+
+    <ion-title>Apostas</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="apostas-content ion-padding">
+
+  <ion-card class="form-card">
+    <ion-card-content>
+
+      <h2>{{ modoEdicao ? 'Editar Aposta' : 'Nova Aposta' }}</h2>
+
+      <div class="form-grid">
+
+        <div class="form-item">
+          <label>Tipo</label>
+
+          <select
+            class="custom-select"
+            [(ngModel)]="form.tipo"
+            [disabled]="modoEdicao || form.origem === 'ROBO'">
+            <option value="AGENDADA">Agendada</option>
+            <option value="RAPIDA">Aposta Rápida</option>
+          </select>
+        </div>
+
+        <div class="form-item">
+          <label>Casa</label>
+
+          <select class="custom-select" [(ngModel)]="form.casaId">
+            <option *ngFor="let casa of casas" [value]="casa.id">
+              {{ casa.nome }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-item">
+          <label>Origem</label>
+
+          <select
+            class="custom-select"
+            [(ngModel)]="form.origem"
+            (change)="onOrigemChange()">
+            <option value="TIPSTER">Tipster</option>
+            <option value="ROBO">Robô</option>
+          </select>
+        </div>
+
+        <div class="form-item" *ngIf="form.origem === 'TIPSTER'">
+          <label>Tipster</label>
+
+          <select class="custom-select" [(ngModel)]="form.tipster">
+            <option value="">Selecione</option>
+            <option *ngFor="let tipster of tipsters" [value]="tipster.nome">
+              {{ tipster.nome }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-item" *ngIf="form.origem === 'ROBO'">
+          <label>Robô</label>
+
+          <select
+            class="custom-select"
+            [(ngModel)]="form.roboId"
+            (change)="onRoboChange()">
+            <option [value]="0">Selecione</option>
+            <option *ngFor="let robo of robos" [value]="robo.id">
+              {{ robo.nome }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-item" *ngIf="form.origem === 'ROBO'">
+          <label>Método</label>
+
+          <select
+            class="custom-select"
+            [(ngModel)]="form.metodoRoboId">
+            <option [value]="0">Selecione</option>
+            <option *ngFor="let metodo of metodosRobo" [value]="metodo.id">
+              {{ metodo.nome }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-item">
+          <label>Hora do Jogo</label>
+
+          <ion-input
+            type="time"
+            fill="outline"
+            [(ngModel)]="form.horaJogo">
+          </ion-input>
+        </div>
+
+        <div class="form-item full" *ngIf="form.origem === 'TIPSTER'">
+          <label>Mercado</label>
+
+          <ion-input
+            fill="outline"
+            placeholder="Ex: Over 1.5 gols"
+            [(ngModel)]="form.mercado">
+          </ion-input>
+        </div>
+
+        <div class="form-item full" *ngIf="form.origem === 'TIPSTER'">
+          <label>Observações</label>
+
+          <ion-input
+            fill="outline"
+            placeholder="Ex: detalhes do bilhete, jogo, estratégia..."
+            [(ngModel)]="form.palpite">
+          </ion-input>
+        </div>
+
+        <div class="form-item">
+          <label>Valor Apostado</label>
+
+          <ion-input
+            #valorApostadoInput
+            type="text"
+            inputmode="numeric"
+            fill="outline"
+            [ngModel]="form.valorApostadoTexto"
+            (ionInput)="onValorApostadoInput($event)">
+          </ion-input>
+        </div>
+
+        <div class="form-item" *ngIf="form.origem === 'TIPSTER'">
+          <label>Odd Tipster</label>
+
+          <ion-input
+            type="text"
+            inputmode="numeric"
+            fill="outline"
+            [ngModel]="form.oddTipsterTexto"
+            (ionInput)="onOddTipsterInput($event)">
+          </ion-input>
+        </div>
+
+        <div class="form-item">
+          <label>Odd Feita</label>
+
+          <ion-input
+            type="text"
+            inputmode="numeric"
+            fill="outline"
+            [ngModel]="form.oddFeitaTexto"
+            (ionInput)="onOddFeitaInput($event)">
+          </ion-input>
+        </div>
+
+ <div class="form-item">
+  <label>Retorno Previsto</label>
+
+  <ion-input
+    type="text"
+    inputmode="numeric"
+    fill="outline"
+    [ngModel]="form.usarRetornoManual
+      ? form.retornoPrevistoManualTexto
+      : formatarMoeda(retornoPrevisto())"
+    (ionInput)="onRetornoPrevistoInput($event)">
+  </ion-input>
+</div>
+
+
+        <div class="preview-box">
+          <label>Possível Lucro</label>
+          <strong>{{ formatarMoeda(possivelLucro()) }}</strong>
+        </div>
+
+        <div class="form-item full" *ngIf="form.origem === 'TIPSTER'">
+          <label>Link / Print do Tipster</label>
+
+          <ion-input
+            fill="outline"
+            placeholder="Link do print, Telegram ou referência"
+            [(ngModel)]="form.linkPrint">
+          </ion-input>
+        </div>
+
+      </div>
+
+      <div class="form-actions">
+        <ion-button color="warning" (click)="salvar()">
+          {{ modoEdicao ? 'Atualizar Aposta' : 'Salvar Aposta' }}
+        </ion-button>
+
+        <ion-button fill="outline" color="medium" (click)="limpar()">
+          {{ modoEdicao ? 'Cancelar Edição' : 'Limpar' }}
+        </ion-button>
+      </div>
+
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card class="observacoes-card">
+    <ion-card-content>
+
+      <div class="obs-header">
+        <div>
+          <h2>Observações do Dia em Apostas</h2>
+          <p>Registre comentários gerais do dia. Essas informações não serão salvas no banco.</p>
+        </div>
+
+        <ion-button
+          fill="outline"
+          color="medium"
+          size="small"
+          (click)="limparObservacoesDia()">
+          Limpar
+        </ion-button>
+      </div>
+
+      <div class="obs-input-row">
+        <ion-input
+          fill="outline"
+          placeholder="Ex: Tipster Mika enviou bilhete com odd muito baixa..."
+          [(ngModel)]="novaObservacaoDia">
+        </ion-input>
+
+        <ion-button color="warning" (click)="adicionarObservacaoDia()">
+          Adicionar
+        </ion-button>
+      </div>
+
+      <div class="obs-lista" *ngIf="observacoesDia.length > 0">
+        <div class="obs-item" *ngFor="let obs of observacoesDia; let i = index">
+          <span>{{ i + 1 }}.</span>
+          <p>{{ obs }}</p>
+
+          <button class="btn-small red" (click)="removerObservacaoDia(i)">
+            Remover
+          </button>
+        </div>
+      </div>
+
+    </ion-card-content>
+  </ion-card>
+
+  <ion-card class="table-card">
+    <ion-card-content>
+
+      <h2>Lista de Apostas</h2>
+
+<div class="filtros-inline">
+
+  <div class="form-item filtro-item filtro-casa">
+    <label>Casa</label>
+
+    <select class="custom-select" [(ngModel)]="filtros.casaId">
+<option value="0">Todas</option>      <option *ngFor="let casa of casas" [value]="casa.id">
+        {{ casa.nome }}
+      </option>
+    </select>
+  </div>
+
+  <div class="form-item filtro-item filtro-tipster">
+    <label>Tipster</label>
+
+    <select class="custom-select" [(ngModel)]="filtros.tipster">
+      <option value="">Todos</option>
+      <option *ngFor="let tipster of tipsters" [value]="tipster.nome">
+        {{ tipster.nome }}
+      </option>
+    </select>
+  </div>
+
+  <div class="form-item filtro-item filtro-status">
+    <label>Status</label>
+
+    <select class="custom-select" [(ngModel)]="filtros.status">
+      <option value="">Todos</option>
+      <option value="AGENDADA">Agendada</option>
+      <option value="APOSTA_FEITA">Feita</option>
+      <option value="EM_ANDAMENTO">Andamento</option>
+      <option value="FECHADA">Fechada</option>
+      <option value="CANCELADA">Cancelada</option>
+    </select>
+  </div>
+
+  <div class="form-item filtro-item filtro-data">
+    <label>Data</label>
+
+    <ion-input
+      type="date"
+      fill="outline"
+      [(ngModel)]="filtros.data">
+    </ion-input>
+  </div>
+
+  <div class="form-item filtro-item filtro-hora">
+    <label>Hora</label>
+
+    <ion-input
+      type="time"
+      fill="outline"
+      [(ngModel)]="filtros.hora">
+    </ion-input>
+  </div>
+
+  <div class="form-actions filtro-actions">
+    <ion-button
+      fill="outline"
+      color="medium"
+      size="small"
+      (click)="limparFiltros()">
+      Limpar
+    </ion-button>
+  </div>
+
+</div>
+
+
+      <div class="resumo-inline">
+
+        <div class="preview-box resumo-mini">
+          <label>Registros</label>
+          <strong>{{ quantidadeFiltrada() }}</strong>
+        </div>
+
+        <div class="preview-box resumo-mini">
+          <label>Valor Apostado</label>
+          <strong>{{ formatarMoeda(valorTotalFiltrado()) }}</strong>
+        </div>
+
+      </div>
+
+      <div class="table-wrap">
+
+        <table>
+          <thead>
+            <tr>
+              <th>Ações</th>
+              <th>Casa</th>
+              <th>Tipster / Robô</th>
+              <th>Horário</th>
+              <th>Valor</th>
+              <th>Odd</th>
+              <th>Odd Tipster</th>
+              <th>Retorno</th>
+              <th>Link</th>
+              <th>Status</th>
+              <th>Resultado</th>
+              <th>Lucro/Perda</th>
+              <th>Obs.</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let aposta of apostasFiltradas()">
+
+              <td>
+                <div class="acoes">
+
+                  <button
+                    class="btn-small"
+                    *ngIf="podeEditar(aposta)"
+                    (click)="editar(aposta)">
+                    Editar
+                  </button>
+
+                  <button
+  class="btn-small warning"
+  *ngIf="aposta.status === 'FECHADA'"
+  (click)="reabrir(aposta)">
+  Reabrir
+</button>
+
+                  <button
+                    class="btn-small blue"
+                    *ngIf="podeFazer(aposta)"
+                    (click)="fazerAposta(aposta)">
+                    Fazer
+                  </button>
+
+                  <button
+                    class="btn-small green"
+                    *ngIf="podeFechar(aposta)"
+                    (click)="fechar(aposta, 'GREEN')">
+                    Green
+                  </button>
+
+                  <button
+                    class="btn-small red"
+                    *ngIf="podeFechar(aposta)"
+                    (click)="fechar(aposta, 'RED')">
+                    Red
+                  </button>
+
+                  <button
+                    class="btn-small yellow"
+                    *ngIf="podeFechar(aposta)"
+                    (click)="fechar(aposta, 'CASHOUT')">
+                    Cashout
+                  </button>
+
+                  <button
+                    class="btn-small"
+                    *ngIf="
+                      aposta.status === 'AGENDADA' ||
+                      aposta.status === 'APOSTA_FEITA' ||
+                      aposta.status === 'EM_ANDAMENTO'
+                    "
+                    (click)="cancelar(aposta)">
+                    Cancelar
+                  </button>
+
+                </div>
+              </td>
+
+              <td>{{ nomeCasa(aposta.casaId) }}</td>
+
+              <td>
+                {{ aposta.origem === 'ROBO'
+                  ? nomeRobo(aposta.roboId)
+                  : (aposta.tipster || '-') }}
+              </td>
+
+              <td>
+                <strong>{{ horarioJogo(aposta) }}</strong>
+              </td>
+
+              <td>{{ formatarMoeda(aposta.valorApostado) }}</td>
+
+              <td>{{ aposta.oddFeita | number:'1.2-2' }}</td>
+
+              <td>{{ aposta.oddTipster }}</td>
+
+              <td>{{ formatarMoeda(aposta.retornoPrevisto) }}</td>
+
+              <td>
+                <button
+                  class="btn-small blue"
+                  *ngIf="aposta.linkPrint"
+                  (click)="abrirLink(aposta)">
+                  Abrir
+                </button>
+
+                <span *ngIf="!aposta.linkPrint">-</span>
+              </td>
+
+              <td>
+                <ion-badge color="medium">
+                  {{ aposta.status }}
+                </ion-badge>
+              </td>
+
+              <td>
+                <ion-badge
+                  [color]="aposta.resultado === 'GREEN'
+                    ? 'success'
+                    : aposta.resultado === 'RED'
+                    ? 'danger'
+                    : 'warning'">
+                  {{ aposta.resultado }}
+                </ion-badge>
+              </td>
+
+              <td>
+                <strong
+                  [class.green-text]="aposta.lucroPrejuizo >= 0"
+                  [class.red-text]="aposta.lucroPrejuizo < 0">
+                  {{ formatarMoeda(aposta.lucroPrejuizo) }}
+                </strong>
+              </td>
+
+              <td>
+                <button
+                  class="btn-small blue"
+                  *ngIf="aposta.palpite"
+                  (click)="abrirObservacoes(aposta)">
+                  Ver
+                </button>
+
+                <span *ngIf="!aposta.palpite">-</span>
+              </td>
+
+            </tr>
+          </tbody>
+        </table>
+
+      </div>
+
+    </ion-card-content>
+  </ion-card>
+
+</ion-content>
